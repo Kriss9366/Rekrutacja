@@ -26,25 +26,29 @@ public class Listing extends AppCompatActivity {
     ListView lista;
     Bitmap mapa;
     JSONArray tablica_quizów;
-    String url = "http://quiz.o2.pl/api/v1/quizzes/0/100";
+    String url;
+    String StringJson,StringJson2=null;
+    boolean wcisk=false;
+    Intent intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing);
+        url = "http://quiz.o2.pl/api/v1/quizzes/0/100";
         lista_quiz = new ArrayList<>();
         lista = (ListView) findViewById(R.id.lista);
+         intent = new Intent(Listing.this, Pytanie.class);
 
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                wcisk = true;
                 try {
-                    JSONObject quiz = new JSONObject(tablica_quizów.get(position).toString());
-
-                    Intent intent = new Intent(Listing.this, Pytanie.class);
-                    intent.putExtra("tytul",quiz.getString("content"));
-                    intent.putExtra("id",quiz.getString("id"));
-                    startActivity(intent);
+                        JSONObject quiz = new JSONObject(tablica_quizów.get(position).toString());
+                        intent.putExtra("tytul",quiz.getString("content"));
+                        intent.putExtra("id",quiz.getString("id"));
+                        startActivity(intent);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -68,35 +72,33 @@ public class Listing extends AppCompatActivity {
         @Override
         protected Void doInBackground(Void... params) {
             Ustawienia ustawienia = new Ustawienia();
-            String StringJson = ustawienia.Zrob_polaczenie(url);
-            Log.e("Listing","Odpowiedz: "+StringJson);
-            if(StringJson !=null) {
-                try {
-                    JSONObject JSONObiekt = new JSONObject(StringJson);
+                StringJson = ustawienia.Zrob_polaczenie(url);
+                Log.e("Listing", "Odpowiedz: " + StringJson);
 
-                    tablica_quizów = JSONObiekt.getJSONArray("items");
-                    for(int i=0;i<tablica_quizów.length();i++)
-                    {
-                        JSONObject quiz = new JSONObject(tablica_quizów.getString(i));
+                if (StringJson != null) {
+                    try {
+                        JSONObject JSONObiekt = new JSONObject(StringJson);
 
-                        HashMap<String,String> tytuly = new HashMap<>();
+                        tablica_quizów = JSONObiekt.getJSONArray("items");
+                        for (int i = 0; i < tablica_quizów.length(); i++) {
+                            JSONObject quiz = new JSONObject(tablica_quizów.getString(i));
 
-                        tytuly.put("tytul",quiz.getString("content"));
+                            HashMap<String, String> tytuly = new HashMap<>();
 
-                        lista_quiz.add(tytuly);
+                            tytuly.put("tytul", quiz.getString("content"));
 
-                        JSONObject zdjecie = new JSONObject(quiz.getString("mainPhoto"));
-                        //mapa =  ustawienia.Zdjecie(zdjecie.getString("url"));
+                            lista_quiz.add(tytuly);
+
+                            JSONObject zdjecie = new JSONObject(quiz.getString("mainPhoto"));
+                            //mapa =  ustawienia.Zdjecie(zdjecie.getString("url"));
+                        }
+
+                    } catch (JSONException e) {
+                        Log.e("Listing", "Problem parsowania pliku JSON" + e.getMessage());
                     }
-
-                } catch (JSONException e) {
-                    Log.e("Listing", "Problem parsowania pliku JSON" + e.getMessage());
+                } else {
+                    Log.e("Listing", "Problem pobierania pliku JSON z serwera");
                 }
-            }
-            else
-            {
-                Log.e("Listing", "Problem pobierania pliku JSON z serwera");
-            }
 
             return null;
         }
