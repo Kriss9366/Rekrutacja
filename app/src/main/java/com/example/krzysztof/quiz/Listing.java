@@ -2,7 +2,6 @@ package com.example.krzysztof.quiz;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -24,11 +23,8 @@ public class Listing extends AppCompatActivity {
     ArrayList<HashMap<String,String>> lista_quiz;
     private ProgressDialog pDialog;
     ListView lista;
-    Bitmap mapa;
     JSONArray tablica_quizów;
-    String url;
-    String StringJson,StringJson2=null;
-    boolean wcisk=false;
+    String url,StringJson;
     Intent intent;
 
     @Override
@@ -43,12 +39,14 @@ public class Listing extends AppCompatActivity {
         lista.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                wcisk = true;
                 try {
                         JSONObject quiz = new JSONObject(tablica_quizów.get(position).toString());
+
                         intent.putExtra("tytul",quiz.getString("content"));
                         intent.putExtra("id",quiz.getString("id"));
+
                         startActivity(intent);
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -90,7 +88,6 @@ public class Listing extends AppCompatActivity {
                             lista_quiz.add(tytuly);
 
                             JSONObject zdjecie = new JSONObject(quiz.getString("mainPhoto"));
-                            //mapa =  ustawienia.Zdjecie(zdjecie.getString("url"));
                         }
 
                     } catch (JSONException e) {
